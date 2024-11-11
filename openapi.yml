@@ -1,0 +1,141 @@
+openapi: 3.0.1
+
+info:
+  title: ToDo Api
+  description: >-
+    Study project
+  version: 0.1.0
+
+paths:
+  /tasks:
+    post:
+      summary: Create new task
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - description
+                - title
+                - due_date
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                due_date:
+                  type: string
+                  example: "11.12.2024"
+                completed:
+                  type: boolean
+      responses:
+        '200':
+          description: Task created
+        '400':
+          description: Validation error
+        '500':
+          description: Internal server error
+    put:
+      summary: Update task
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+        description: Id of the task
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Task updated
+        '400':
+          description: Validation error
+        '404':
+          description: Task not found
+    patch:
+      summary: Toggle completed status
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+        description: Id of the task
+      responses:
+        '200':
+          description: Task updated
+        '404':
+          description: Task not found
+    delete:
+      summary: Delete task
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+        description: Id of the task
+      responses:
+        '200':
+          description: Task deleted
+        '404':
+          description: Task not found
+    get:
+      summary: Get task
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+        description: Id of the task
+      responses:
+        '200':
+          description: Task
+        '404':
+          description: Task not found
+  /tasks/all:
+    get:
+      summary: List tasks
+      parameters:
+      - in: query
+        name: completed
+        schema:
+          type: boolean
+        description: Filter by status
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Amount per page
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page size
+      responses:
+        '200':
+          description: List of tasks
+        '400':
+          description: Validation error
+
+
+
+
+
+
+  
