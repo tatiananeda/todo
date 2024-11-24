@@ -2,29 +2,34 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
-	repo "github.com/tatiananeda/todo/repository"
+	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	repo "github.com/tatiananeda/todo/repository"
+	"github.com/tatiananeda/todo/utils"
 )
 
-func Update(w http.ResponseWriter, r *http.Request) {
+var Update = utils.WithErrorHandling(update)
+
+func update(w http.ResponseWriter, r *http.Request) error {
+	defer r.Body.Close()
+
 	vars := mux.Vars(r)
 	id := vars["id"]
 
 	req, err := io.ReadAll(r.Body)
 
 	if err != nil {
-		http.Error(w, err.Error(), 400)
-		return
+		return fmt.Errorf("Error parsing body %w;", err)
 	}
 
 	var input Input
 	e := json.Unmarshal(req, &input)
 
 	if e != nil {
-		http.Error(w, "Invalid JSON", 400)
-		return
+		return utils.InvalidJSON(e)
 	}
 
 	for _, task := range repo.Tasks {
@@ -40,10 +45,12 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 			task.IsComplete = input.IsComplete
 
-			json.NewEncoder(w).Encode(task)
-			return
+			if err := utils.WriteJSON(w, http.StatusOK, task); err != nil {
+				return err
+			}
+			return nil
 		}
 	}
 
-	http.Error(w, "Task "+id+" not found", 404)
+	return utils.NotFound(id)
 }

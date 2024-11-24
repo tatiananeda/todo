@@ -1,13 +1,15 @@
 package controllers
 
 import (
-	"encoding/json"
 	"github.com/gorilla/mux"
 	repo "github.com/tatiananeda/todo/repository"
+	"github.com/tatiananeda/todo/utils"
 	"net/http"
 )
 
-func MarkComplete(w http.ResponseWriter, r *http.Request) {
+var MarkComplete = utils.WithErrorHandling(markComplete)
+
+func markComplete(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
@@ -15,10 +17,12 @@ func MarkComplete(w http.ResponseWriter, r *http.Request) {
 		if task.Id == id {
 			task.IsComplete = !task.IsComplete
 
-			json.NewEncoder(w).Encode(task)
-			return
+			if err := utils.WriteJSON(w, http.StatusOK, task); err != nil {
+				return err
+			}
+			return nil
 		}
 	}
 
-	http.Error(w, "Task "+id+" not found", 404)
+	return utils.NotFound(id)
 }

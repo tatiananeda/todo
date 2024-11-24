@@ -1,14 +1,15 @@
 package controllers
 
 import (
-	"encoding/json"
+	repo "github.com/tatiananeda/todo/repository"
+	"github.com/tatiananeda/todo/utils"
 	"net/http"
 	"strconv"
-
-	repo "github.com/tatiananeda/todo/repository"
 )
 
-func GetMany(w http.ResponseWriter, r *http.Request) {
+var GetMany = utils.WithErrorHandling(getMany)
+
+func getMany(w http.ResponseWriter, r *http.Request) error {
 	queryParams := r.URL.Query()
 	l := queryParams.Get("limit")
 	p := queryParams.Get("page")
@@ -20,8 +21,7 @@ func GetMany(w http.ResponseWriter, r *http.Request) {
 		completed, err := strconv.ParseBool(c)
 
 		if err != nil {
-			http.Error(w, "completed must be a boolean", 400)
-			return
+			return utils.InvalidField("completed must be a boolean")
 		}
 
 		tasks = make([]*repo.Task, 0)
@@ -34,20 +34,20 @@ func GetMany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if l == "" && p == "" {
-		json.NewEncoder(w).Encode(tasks)
-		return
+		if err := utils.WriteJSON(w, http.StatusOK, tasks); err != nil {
+			return err
+		}
+		return nil
 	}
 
 	limit, err := strconv.ParseInt(l, 10, 64)
 	if err != nil || limit < 1 {
-		http.Error(w, "Limit must be a positive integer", 400)
-		return
+		return utils.InvalidField("Limit must be a positive integer")
 	}
-	page, err := strconv.ParseInt(p, 10, 64)
 
+	page, err := strconv.ParseInt(p, 10, 64)
 	if err != nil || page < 1 {
-		http.Error(w, "Page must be a positive integer", 400)
-		return
+		return utils.InvalidField("Page must be a positive integer")
 	}
 
 	startIdx := page - 1
@@ -56,9 +56,14 @@ func GetMany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(tasks) < int(startIdx) {
-		json.NewEncoder(w).Encode([]*repo.Task{})
-		return
+		if err := utils.WriteJSON(w, http.StatusOK, []*repo.Task{}); err != nil {
+			return err
+		}
+		return nil
 	}
 
-	json.NewEncoder(w).Encode(tasks[startIdx : limit*page])
+	if err := utils.WriteJSON(w, http.StatusOK, tasks[startIdx:limit*page]); err != nil {
+		return err
+	}
+	return nil
 }

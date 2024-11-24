@@ -2,10 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/google/uuid"
-	repo "github.com/tatiananeda/todo/repository"
+	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/google/uuid"
+	repo "github.com/tatiananeda/todo/repository"
+	"github.com/tatiananeda/todo/utils"
 )
 
 type Input struct {
@@ -15,36 +18,36 @@ type Input struct {
 	IsComplete  bool
 }
 
-func Create(w http.ResponseWriter, r *http.Request) {
+var Create = utils.WithErrorHandling(create)
+
+func create(w http.ResponseWriter, r *http.Request) error {
+	defer r.Body.Close()
+
 	req, err := io.ReadAll(r.Body)
 
 	if err != nil {
-		http.Error(w, err.Error(), 400)
-		return
+		return fmt.Errorf("Error parsing body %w;", err)
 	}
 
 	var input Input
 	e := json.Unmarshal(req, &input)
 
 	if e != nil {
-		http.Error(w, "Invalid JSON", 400)
-		return
+		return utils.InvalidJSON(e)
 	}
 
 	if input.Title == "" {
-		http.Error(w, "title is required", 400)
-		return
+		return utils.InvalidField("title is required")
 	}
 
 	if input.Due_date == "" {
-		http.Error(w, "due_date is required", 400)
-		return
+		return utils.InvalidField("due_date is required")
 	}
 
 	uuid, err := uuid.NewRandom()
+
 	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
+		return fmt.Errorf("Error generating uuid %w;", err)
 	}
 
 	t := repo.Task{
@@ -57,5 +60,9 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	repo.Tasks = append(repo.Tasks, &t)
 
-	json.NewEncoder(w).Encode(t)
+	if err := utils.WriteJSON(w, http.StatusOK, t); err != nil {
+		return err
+	}
+
+	return nil
 }
