@@ -1,18 +1,19 @@
-package utils
+package test_utils
 
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/tatiananeda/todo/entities/web"
 	r "github.com/tatiananeda/todo/repository"
 	"testing"
 )
 
 type ResponseType interface {
-	r.Task | APIError | []r.Task
+	web.TaskInput | web.APIError | []r.Task | r.Task
 }
 
 type AssertionType interface {
-	APIError | string | int | bool | r.Task
+	web.APIError | string | int | bool | r.Task
 }
 
 func ParseResponse[T ResponseType](b *bytes.Buffer, r T) (T, error) {

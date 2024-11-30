@@ -10,7 +10,7 @@ See openapi file for details.
 
 ### to run benchmarking tests
 
-`go test -bench=. ./controllers -run=^$`
+`go test -bench=. ./controllers/task -run=^$`
 
 ### to run unit tests
 

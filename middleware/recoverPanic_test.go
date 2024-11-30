@@ -1,11 +1,13 @@
 package middleware_test
 
 import (
-	m "github.com/tatiananeda/todo/middleware"
-	u "github.com/tatiananeda/todo/utils"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	m "github.com/tatiananeda/todo/middleware"
+	"github.com/tatiananeda/todo/services"
+	u "github.com/tatiananeda/todo/utils/testutils"
 )
 
 func TestRecoverPanicMiddleware(t *testing.T) {
@@ -19,7 +21,9 @@ func TestRecoverPanicMiddleware(t *testing.T) {
 	}
 	rr := httptest.NewRecorder()
 
-	h := m.RecoverPanicMiddleware(http.HandlerFunc(next))
+	httpResponseService := services.NewHttpResponseService()
+	mid := m.NewRecoverPanicMiddleware(httpResponseService)
+	h := mid.Middleware(http.HandlerFunc(next))
 	h.ServeHTTP(rr, req)
 	u.Check(t, rr.Code, http.StatusInternalServerError)
 }
