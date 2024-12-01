@@ -20,7 +20,7 @@ func (r *Repository) AddTask(t *Task) {
 	r.Tasks = append(r.Tasks, t)
 }
 
-func (r Repository) GetTaskById(id string) *Task {
+func (r *Repository) GetTaskById(id string) *Task {
 	for _, task := range r.Tasks {
 		if task.Id == id {
 			return task
@@ -39,7 +39,7 @@ func (r *Repository) DeleteById(id string) bool {
 	return false
 }
 
-func (r Repository) GetByCompleted(completed bool) []*Task {
+func (r *Repository) GetByCompleted(completed bool) []*Task {
 	tasks := make([]*Task, 0)
 	for _, t := range r.Tasks {
 		if t.IsComplete == completed {
@@ -49,6 +49,6 @@ func (r Repository) GetByCompleted(completed bool) []*Task {
 	return tasks
 }
 
-func (r Repository) GetAll() []*Task {
+func (r *Repository) GetAll() []*Task {
 	return r.Tasks
 }

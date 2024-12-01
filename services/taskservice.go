@@ -18,7 +18,7 @@ func NewTaskService(r *repository.Repository) *TaskService {
 	return &t
 }
 
-func (s TaskService) Create(input *web.TaskInput) (*repository.Task, error) {
+func (s *TaskService) Create(input *web.TaskInput) (*repository.Task, error) {
 	uuid, err := uuid.NewRandom()
 
 	if err != nil {
@@ -38,7 +38,7 @@ func (s TaskService) Create(input *web.TaskInput) (*repository.Task, error) {
 	return &t, nil
 }
 
-func (s TaskService) Update(id string, input *web.TaskInput) (*repository.Task, error) {
+func (s *TaskService) Update(id string, input *web.TaskInput) (*repository.Task, error) {
 	task := s.repository.GetTaskById(id)
 	if task == nil {
 		return nil, web.NotFound(id)
@@ -57,7 +57,7 @@ func (s TaskService) Update(id string, input *web.TaskInput) (*repository.Task, 
 	return task, nil
 }
 
-func (s TaskService) Delete(id string) error {
+func (s *TaskService) Delete(id string) error {
 	res := s.repository.DeleteById(id)
 	if res != true {
 		return web.NotFound(id)
@@ -65,7 +65,7 @@ func (s TaskService) Delete(id string) error {
 	return nil
 }
 
-func (s TaskService) GetById(id string) (*repository.Task, error) {
+func (s *TaskService) GetById(id string) (*repository.Task, error) {
 	t := s.repository.GetTaskById(id)
 	if t == nil {
 		return nil, web.NotFound(id)
@@ -73,15 +73,15 @@ func (s TaskService) GetById(id string) (*repository.Task, error) {
 	return t, nil
 }
 
-func (s TaskService) GetFilteredByCompleted(completed bool) []*repository.Task {
+func (s *TaskService) GetFilteredByCompleted(completed bool) []*repository.Task {
 	return s.repository.GetByCompleted(completed)
 }
 
-func (s TaskService) GetAll() []*repository.Task {
+func (s *TaskService) GetAll() []*repository.Task {
 	return s.repository.GetAll()
 }
 
-func (s TaskService) GetPage(limit, page string, slice []*repository.Task) ([]*repository.Task, error) {
+func (s *TaskService) GetPage(limit, page string, slice []*repository.Task) ([]*repository.Task, error) {
 	var tasks []*repository.Task = slice
 	if tasks == nil {
 		tasks = s.repository.GetAll()
