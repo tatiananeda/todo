@@ -32,5 +32,7 @@ func main() {
 	router.HandleFunc("/tasks/{id}", delete.Handler).Methods(http.MethodDelete)
 	router.HandleFunc("/tasks", create.Handler).Methods(http.MethodPost)
 
-	http.ListenAndServe(":3032", router)
+	if err := http.ListenAndServe(":3032", router); err != nil {
+		panic(err)
+	}
 }

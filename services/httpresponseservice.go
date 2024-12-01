@@ -15,10 +15,12 @@ func NewHttpResponseService() *HttpResponseService {
 	return &HttpResponseService{}
 }
 
-func (s HttpResponseService) WriteJSON(w http.ResponseWriter, status int, v any) error {
+func (s HttpResponseService) WriteJSON(w http.ResponseWriter, status int, v any) {
 	w.WriteHeader(status)
 	w.Header().Set("Content-Type", "application/json")
-	return json.NewEncoder(w).Encode(v)
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		panic("Unexpected error writing response")
+	}
 }
 
 func (s HttpResponseService) HandleErrorResponse(w http.ResponseWriter, r *http.Request, err error) {

@@ -59,7 +59,7 @@ func (s *TaskService) Update(id string, input *web.TaskInput) (*repository.Task,
 
 func (s *TaskService) Delete(id string) error {
 	res := s.repository.DeleteById(id)
-	if res != true {
+	if !res {
 		return web.NotFound(id)
 	}
 	return nil

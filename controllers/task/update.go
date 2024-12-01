@@ -51,7 +51,7 @@ func (c UpdateController) Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err = c.taskService.Update(id, &input)
+	_, err = c.taskService.Update(id, &input)
 	if err != nil {
 		c.httpResponseService.HandleErrorResponse(w, r, err)
 		return
